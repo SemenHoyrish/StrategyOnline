@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+}
+
+body{
+    margin: 0;
+    padding: 0;
+}
+
+.field {
+    height: 800px;
+    width: 800px;
+    display: flex;
+    flex-wrap: wrap;
+    background: greenyellow;
+}
+
+.block {
+    height: 80px;
+    width: 80px;
+    transition: all .1s;
+    border: 1px solid green;
+}
+
+.block.visible {
+    background-color: rgb(194, 255, 103);
+}
+
+.block.base {
+    background-color: grey;
+}
+
+.block.mine {
+    background-color: indigo;
+}
+
+.block.soldier {
+    background-color: lightcoral;
+}
+
+.block:hover {
+    border: 4px solid green;
+}
+
+
+.create-menu,
+.soldier-control {
+    transition: opacity 0.2s;
+    opacity: 0;
+    position: fixed;
+    bottom: 0;
+}
+.create-menu button,
+.soldier-control button {
+    height: 80px;
+    width: 120px;
+    font-size: 20px;
+}
+
+.create-menu.active,
+.soldier-control.active {
+    opacity: 1;
+}
+
+
+.create-menu {
+    left: 0;
+}
+.soldier-control {
+    left: 400px;
+}
