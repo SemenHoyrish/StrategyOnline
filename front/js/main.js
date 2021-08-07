@@ -2,9 +2,40 @@ const field = document.querySelector(".field");
 
 const FIELD_SIZE = 10;
 
+const color = "undefined";
+
 const basePosition = 90;
 const basePositionX = 1;
 const basePositionY = 10;
+
+
+// Opponents
+
+// first
+const firstOpponentColor = "undefined";
+const firstOpponentBasePosition = 0;
+const firstOpponentBasePositionX = 0;
+const firstOpponentBasePositionY = 0;
+let firstOpponentSoldiers = [];
+let firstOpponentMines = [];
+
+// second
+const secondOpponentColor = "undefined";
+const secondOpponentBasePosition = 0;
+const secondOpponentBasePositionX = 0;
+const secondOpponentBasePositionY = 0;
+let secondOpponentSoldiers = [];
+let secondOpponentMines = [];
+
+// third
+const thirdOpponentColor = "undefined";
+const thirdOpponentBasePosition = 0;
+const thirdOpponentBasePositionX = 0;
+const thirdOpponentBasePositionY = 0;
+let thirdOpponentSoldiers = [];
+let thirdOpponentMines = [];
+
+
 
 let visibilityX = 2;
 let visibilityY = 2;
@@ -24,6 +55,7 @@ let activeSolderBlockIndex = 0;
 
 const createMenu = document.querySelector(".create-menu");
 const soldierControl = document.querySelector(".soldier-control");
+const killMenu = document.querySelector(".kill-menu");
 
 for (let i = 0; i < FIELD_SIZE * FIELD_SIZE; i++) {
     let block = document.createElement("div");
@@ -93,6 +125,15 @@ const GetBlockIndexByPosition = (x, y) => {
     });
 }
 
+const DeleteItemFromArray = (array, value) => {
+    for( var i = 0; i < array.length; i++){ 
+        if ( array[i] === value) { 
+            array.splice(i, 1);
+            return;
+        }
+    }
+}
+
 const CheckVisibleArea = () => {
 
     visibleArea = [];
@@ -127,6 +168,62 @@ const CheckVisibleArea = () => {
         block.classList.add("visible");
     });
 
+
+    CheckVisibleOpponents();
+
+}
+
+const CheckVisibleOpponents = () => {
+    firstOpponentMines.forEach(mine => {
+        mine.classList.remove("opponentMine");
+        mine.classList.remove(firstOpponentColor);
+        if (SeeBlock(mine)) {
+            mine.classList.add("opponentMine");
+            mine.classList.add(firstOpponentColor);
+        }
+    });
+    firstOpponentSoldiers.forEach(soldier => {
+        soldier.classList.remove("opponentSoldier");
+        soldier.classList.remove(firstOpponentColor);
+        if (SeeBlock(soldier)) {
+            soldier.classList.add("opponentSoldier");
+            soldier.classList.add(firstOpponentColor);
+        }
+    });
+
+    secondOpponentMines.forEach(mine => {
+        mine.classList.remove("opponentMine");
+        mine.classList.remove(secondOpponentColor);
+        if (SeeBlock(mine)) {
+            mine.classList.add("opponentMine");
+            mine.classList.add(secondOpponentColor);
+        }
+    });
+    secondOpponentSoldiers.forEach(soldier => {
+        soldier.classList.remove("opponentSoldier");
+        soldier.classList.remove(secondOpponentColor);
+        if (SeeBlock(soldier)) {
+            soldier.classList.add("opponentSoldier");
+            soldier.classList.add(secondOpponentColor);
+        }
+    });
+
+    firstOpponentMines.forEach(mine => {
+        mine.classList.remove("opponentMine");
+        mine.classList.remove(firstOpponentColor);
+        if (SeeBlock(mine)) {
+            mine.classList.add("opponentMine");
+            mine.classList.add(firstOpponentColor);
+        }
+    });
+    firstOpponentSoldiers.forEach(soldier => {
+        soldier.classList.remove("opponentSoldier");
+        soldier.classList.remove(firstOpponentColor);
+        if (SeeBlock(soldier)) {
+            soldier.classList.add("opponentSoldier");
+            soldier.classList.add(firstOpponentColor);
+        }
+    });
 }
 
 const SeeBlock = (blockIndex) => {
@@ -353,33 +450,84 @@ soldierControl.querySelector(".right").addEventListener("click", () => {
 });
 
 
+const Kill = () => {
+    if (IsBlockSoldier(blocks[clickedBlockIndex - 1]) ||
+    IsBlockSoldier(blocks[clickedBlockIndex + 1]) ||
+    IsBlockSoldier(blocks[clickedBlockIndex - 10]) ||
+    IsBlockSoldier(blocks[clickedBlockIndex + 10])) {
+        if (clickedBlock.classList.contains("opponentMine")) {
+            if (firstOpponentMines.includes(clickedBlock))
+                DeleteItemFromArray(firstOpponentMines, clickedBlock);
+            else if (secondOpponentMines.includes(clickedBlock))
+                DeleteItemFromArray(secondOpponentMines, clickedBlock);
+            else if (thirdOpponentMines.includes(clickedBlock))
+                DeleteItemFromArray(thirdOpponentMines, clickedBlock);
+        } else if (clickedBlock.classList.contains("opponentSoldier")) {
+            if (firstOpponentSoldiers.includes(clickedBlock))
+                DeleteItemFromArray(firstOpponentSoldiers, clickedBlock);
+            else if (secondOpponentSoldiers.includes(clickedBlock))
+                DeleteItemFromArray(secondOpponentSoldiers, clickedBlock);
+            else if (thirdOpponentSoldiers.includes(clickedBlock))
+                DeleteItemFromArray(thirdOpponentSoldiers, clickedBlock);
+        }
+    } else {
+        alert("No soldier to kill it!");
+    }
+    
+}
+
+
+killMenu.querySelector(".kill").addEventListener("click", () => {
+    Kill();
+});
+
+const ShowKillMenu = () => {
+    killMenu.classList.add("active");
+}
+
+const HideKillMenu = () => {
+    killMenu.classList.remove("active");
+}
+
+
+const IsOpponent = (block) => {
+    if (block.classList.contains("opponentMine") || block.classList.contains("opponentSoldier")) {
+        return true;
+    }
+    return false;
+}
+
 const AvailableAction = () => {
     HideCreateMenu();
     HideSoldierControl();
     if (IsBlockEmpty(clickedBlock))
         ShowCreateMenu();
-    else if (IsBlockSoldier(clickedBlock))
+    else if (IsBlockSoldier(clickedBlock) && !IsOpponent(clickedBlock))
         ShowSoldierControl();
+    else if (IsOpponent(clickedBlock))
+        ShowKillMenu();
 }
 
 
-
-blocks.forEach(block => {
-    let index = blocks.indexOf(block);
-    if (SeeBlock(index))
-    {
-        block.classList.add("visible");
-    }
-    block.addEventListener("click", () => {
-        clickedBlockIndex = index;
-        clickedBlock = block;
-        // alert("x: " + GetBlockX(index) + "  y: " + GetBlockY(index) + "  see?: " + SeeBlock(index));
-        if (!IsBase(index) && SeeBlock(index)) {
-            AvailableAction();
+const Main = () => {
+    blocks.forEach(block => {
+        let index = blocks.indexOf(block);
+        if (SeeBlock(index))
+        {
+            block.classList.add("visible");
         }
+        block.addEventListener("click", () => {
+            clickedBlockIndex = index;
+            clickedBlock = block;
+            // alert("x: " + GetBlockX(index) + "  y: " + GetBlockY(index) + "  see?: " + SeeBlock(index));
+            if (!IsBase(index) && SeeBlock(index)) {
+                AvailableAction();
+            }
+        });
     });
-});
+    
+    CheckVisibleArea();
+    
+}
 
-
-
-CheckVisibleArea();
+Main();

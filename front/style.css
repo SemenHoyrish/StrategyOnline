@@ -44,21 +44,24 @@ body{
 
 
 .create-menu,
-.soldier-control {
+.soldier-control,
+.kill-menu {
     transition: opacity 0.2s;
     opacity: 0;
     position: fixed;
     bottom: 0;
 }
 .create-menu button,
-.soldier-control button {
+.soldier-control button,
+.kill-menu button {
     height: 80px;
     width: 120px;
     font-size: 20px;
 }
 
 .create-menu.active,
-.soldier-control.active {
+.soldier-control.active,
+.kill-menu.active {
     opacity: 1;
 }
 
@@ -68,4 +71,7 @@ body{
 }
 .soldier-control {
     left: 400px;
+}
+.kill-menu {
+    left: 800px;
 }
