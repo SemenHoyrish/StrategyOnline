@@ -1,0 +1,27 @@
+
+games:
+    id: int
+    owner_id: int
+    players: json
+    settings: json
+    started: true/false
+
+games_data:
+    id: int
+    game_id: int
+    data_key: string
+    data_value: int
+
+    ::::
+        firstPlayerColor
+        firstPlayerBasePos
+        firstPlayerBasePosX
+        firstPlayerBasePosY
+        firstPlayerMines
+        firstPlayerSoldiers
+
+users:
+    id: int
+    nick: string
+    password: string
+

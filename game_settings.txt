@@ -1,0 +1,9 @@
+{
+    field_size: 10,
+    money_start: 100,
+    soldier_cost: 10,
+    mine_cost: 10,
+    spawn_jewel: false,
+    jewels_max: 1,
+    jewels_spawn_chance: 2, // %
+}
