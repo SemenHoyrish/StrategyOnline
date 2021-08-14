@@ -1,37 +1,41 @@
 const field = document.querySelector(".field");
 
-const FIELD_SIZE = 10;
+let FIELD_SIZE = 10;
 
-const color = "undefined";
+let players = [];
+let user_id = 0;
+let game_id = 0;
 
-const basePosition = 90;
-const basePositionX = 1;
-const basePositionY = 10;
+let color = "undefined";
+
+let basePosition = 90;
+let basePositionX = 1;
+let basePositionY = 10;
 
 
 // Opponents
 
 // first
-const firstOpponentColor = "undefined";
-const firstOpponentBasePosition = 0;
-const firstOpponentBasePositionX = 0;
-const firstOpponentBasePositionY = 0;
+let firstOpponentColor = "undefined";
+let firstOpponentBasePosition = 0;
+let firstOpponentBasePositionX = 0;
+let firstOpponentBasePositionY = 0;
 let firstOpponentSoldiers = [];
 let firstOpponentMines = [];
 
 // second
-const secondOpponentColor = "undefined";
-const secondOpponentBasePosition = 0;
-const secondOpponentBasePositionX = 0;
-const secondOpponentBasePositionY = 0;
+let secondOpponentColor = "undefined";
+let secondOpponentBasePosition = 0;
+let secondOpponentBasePositionX = 0;
+let secondOpponentBasePositionY = 0;
 let secondOpponentSoldiers = [];
 let secondOpponentMines = [];
 
 // third
-const thirdOpponentColor = "undefined";
-const thirdOpponentBasePosition = 0;
-const thirdOpponentBasePositionX = 0;
-const thirdOpponentBasePositionY = 0;
+let thirdOpponentColor = "undefined";
+let thirdOpponentBasePosition = 0;
+let thirdOpponentBasePositionX = 0;
+let thirdOpponentBasePositionY = 0;
 let thirdOpponentSoldiers = [];
 let thirdOpponentMines = [];
 
@@ -57,18 +61,25 @@ const createMenu = document.querySelector(".create-menu");
 const soldierControl = document.querySelector(".soldier-control");
 const killMenu = document.querySelector(".kill-menu");
 
-for (let i = 0; i < FIELD_SIZE * FIELD_SIZE; i++) {
-    let block = document.createElement("div");
-    block.classList.add("block");
-    field.appendChild(block);
-    blocks.push(block);
-    if (i==basePosition)
-    {
-        block.classList.add("base");
+const maxActionsLabel = document.querySelector(".max-actions");
+
+let maxActions = 3;
+let didActions = 0;
+
+
+const Create = () => {
+    for (let i = 0; i < FIELD_SIZE * FIELD_SIZE; i++) {
+        let block = document.createElement("div");
+        block.classList.add("block");
+        field.appendChild(block);
+        blocks.push(block);
+        if (i==basePosition)
+        {
+            block.classList.add("base");
+        }
     }
+    
 }
-
-
 
 
 const GetBlockX = (blockIndex) => {
@@ -246,6 +257,15 @@ const IsBase = (blockIndex) => {
     return false;
 }
 
+const CanDoStep = () => {
+    if (didActions < maxActions) {
+        didActions++;
+        return true;
+    } else {
+        maxActionsLabel.classList.add("active");
+        return false;
+    }
+}
 
 const ShowCreateMenu = () => {
     createMenu.classList.add("active");
@@ -280,6 +300,7 @@ const IsBlockSoldier = (block) => {
 }
 
 const CreateMine = () => {
+    if (!CanDoStep()) return;
     let block = clickedBlock;
     if (IsBlockEmpty(block) && SeeBlock(clickedBlockIndex)) {
         block.classList.add("mine");
@@ -290,7 +311,8 @@ const CreateMine = () => {
     HideCreateMenu();
 }
 
-const CreateSoldier = (block=clickedBlock) => {
+const CreateSoldier = (byPlayer=true, block=clickedBlock) => {
+    if (byPlayer && !CanDoStep()) return;
     if (IsBlockEmpty(block) && SeeBlock(clickedBlockIndex)) {
         block.classList.add("soldier");
         soldiers.push(block);
@@ -393,9 +415,10 @@ createMenu.querySelector(".create-soldier").addEventListener("click", () => {
 // } 
 
 const SoldierLeft = () => {
+    if (!CanDoStep()) return;
     if (GetBlockX(clickedBlockIndex) != 1 && IsBlockEmpty(blocks[clickedBlockIndex - 1])) {
         RemoveSoldier(clickedBlock);
-        CreateSoldier(blocks[clickedBlockIndex - 1]);
+        CreateSoldier(false, blocks[clickedBlockIndex - 1]);
     } else {
         alert("Block are not empty!");
     }
@@ -403,9 +426,10 @@ const SoldierLeft = () => {
 } 
 
 const SoldierUp = () => {
+    if (!CanDoStep()) return;
     if (GetBlockY(clickedBlockIndex) != 1 && IsBlockEmpty(blocks[clickedBlockIndex - 10])) {
         RemoveSoldier(clickedBlock);
-        CreateSoldier(blocks[clickedBlockIndex - 10]);
+        CreateSoldier(false, blocks[clickedBlockIndex - 10]);
     } else {
         alert("Block are not empty!");
     }
@@ -413,9 +437,10 @@ const SoldierUp = () => {
 }
 
 const SoldierDown = () => {
+    if (!CanDoStep()) return;
     if (GetBlockY(clickedBlockIndex) != 10 && IsBlockEmpty(blocks[clickedBlockIndex + 10])) {
         RemoveSoldier(clickedBlock);
-        CreateSoldier(blocks[clickedBlockIndex + 10]);
+        CreateSoldier(false, blocks[clickedBlockIndex + 10]);
     } else {
         alert("Block are not empty!");
     }
@@ -423,9 +448,10 @@ const SoldierDown = () => {
 }
 
 const SoldierRight = () => {
+    if (!CanDoStep()) return;
     if (GetBlockX(clickedBlockIndex) != 10 && IsBlockEmpty(blocks[clickedBlockIndex + 1])) {
         RemoveSoldier(clickedBlock);
-        CreateSoldier(blocks[clickedBlockIndex + 1]);
+        CreateSoldier(false, blocks[clickedBlockIndex + 1]);
     } else {
         alert("Block are not empty!");
     }
@@ -451,6 +477,7 @@ soldierControl.querySelector(".right").addEventListener("click", () => {
 
 
 const Kill = () => {
+    if (!CanDoStep()) return;
     if (IsBlockSoldier(blocks[clickedBlockIndex - 1]) ||
     IsBlockSoldier(blocks[clickedBlockIndex + 1]) ||
     IsBlockSoldier(blocks[clickedBlockIndex - 10]) ||
@@ -509,7 +536,7 @@ const AvailableAction = () => {
 }
 
 
-const Main = () => {
+const Init = () => {
     blocks.forEach(block => {
         let index = blocks.indexOf(block);
         if (SeeBlock(index))
@@ -527,7 +554,254 @@ const Main = () => {
     });
     
     CheckVisibleArea();
-    
+}
+
+let loaded = false;
+
+const CheckDataLoaded = () => {
+    console.log(loaded);
+    if (loaded == true) {
+        Create();
+        Init();
+    } else {
+        setTimeout(() => {
+            CheckDataLoaded();
+        }, 200);
+    }
+}
+
+const Main = () => {
+    game_id = +location.href.split("#")[1];
+    user_id = +location.href.split("#")[2];
+
+    GetPlayers();
+    Get();
+   
+    CheckDataLoaded();
+}
+
+const GetPlayers = () => {
+    var xhr = new XMLHttpRequest();
+	xhr.open("GET", `http://192.168.0.114/get_players.php?game_id=${game_id}`, true);
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+	xhr.onreadystatechange = function() {
+	    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+			console.log(xhr.response);
+
+            let data = JSON.parse(xhr.response);
+
+            if (data != false)
+            {
+                players = data;
+            }
+        }
+
+	}
+	xhr.send(null);
+}
+
+const Get = () => {
+    var xhr = new XMLHttpRequest();
+	xhr.open("GET", `http://192.168.0.114/get.php?game_id=${game_id}`, true);
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+	xhr.onreadystatechange = function() {
+	    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+			console.log(xhr.response);
+
+            let data = JSON.parse(xhr.response);
+
+            if (data != false)
+            {
+                FIELD_SIZE = 10;
+
+                let main_counter = 0;
+                let counter = 0;
+                players.forEach(player => {
+                    main_counter++;
+                    if (player == user_id) {
+                        console.log("you");
+                        switch (main_counter) {
+                            case 1:
+                                console.log(1);
+                                console.log(data);
+                                color = JSON.parse(data["firstPlayerColor"]);
+                                basePosition = +data["firstPlayerBasePos"];
+                                basePositionX = +data["firstPlayerBasePosX"];
+                                basePositionY = +JSON.parse(data["firstPlayerBasePosY"]);
+                                mines = JSON.parse(data["firstPlayerMines"]);
+                                soldiers = JSON.parse(data["firstPlayerSoldiers"]);
+                                break;
+                            case 2:
+                                color = JSON.parse(data["secondPlayerColor"]);
+                                basePosition = +data["secondPlayerBasePos"];
+                                basePositionX = +data["secondPlayerBasePosX"];
+                                basePositionY = +JSON.parse(data["secondPlayerBasePosY"]);
+                                mines = JSON.parse(data["secondPlayerMines"]);
+                                soldiers = JSON.parse(data["secondPlayerSoldiers"]);
+                                break;
+                            case 3:
+                                color = JSON.parse(data["thirdPlayerColor"]);
+                                basePosition = +data["thirdPlayerBasePos"];
+                                basePositionX = +data["thirdPlayerBasePosX"];
+                                basePositionY = +JSON.parse(data["thirdPlayerBasePosY"]);
+                                mines = JSON.parse(data["thirdPlayerMines"]);
+                                soldiers = JSON.parse(data["thirdPlayerSoldiers"]);
+                                break;
+                            case 4:
+                                color = JSON.parse(data["fourthPlayerColor"]);
+                                basePosition = +data["fourthPlayerBasePos"];
+                                basePositionX = +data["fourthPlayerBasePosX"];
+                                basePositionY = +JSON.parse(data["fourthPlayerBasePosY"]);
+                                mines = JSON.parse(data["fourthPlayerMines"]);
+                                soldiers = JSON.parse(data["fourthPlayerSoldiers"]);
+                                break;
+                            default:
+                                break;
+                        }
+                    } else {
+                        counter++;
+                        switch (counter) {
+                            case 1:
+                                console.log("enemy 1");
+                                switch (main_counter) {
+                                    case 1:
+                                        console.log(1);
+                                        firstOpponentColor = JSON.parse(data["firstPlayerColor"]);
+                                        firstOpponentBasePosition = +data["firstPlayerBasePos"];
+                                        firstOpponentBasePositionX = +data["firstPlayerBasePosX"];
+                                        firstOpponentBasePositionY = +JSON.parse(data["firstPlayerBasePosY"]);
+                                        firstOpponentMines = JSON.parse(data["firstPlayerMines"]);
+                                        firstOpponentSoldiers = JSON.parse(data["firstPlayerSoldiers"]);
+                                        break;
+                                    case 2:
+                                        console.log(2);
+
+                                        firstOpponentColor = JSON.parse(data["secondPlayerColor"]);
+                                        firstOpponentBasePosition = +data["secondPlayerBasePos"];
+                                        firstOpponentBasePositionX = +data["secondPlayerBasePosX"];
+                                        firstOpponentBasePositionY = +JSON.parse(data["secondPlayerBasePosY"]);
+                                        firstOpponentMines = JSON.parse(data["secondPlayerMines"]);
+                                        firstOpponentSoldiers = JSON.parse(data["secondPlayerSoldiers"]);
+                                        break;
+                                    case 3:
+                                        console.log(3);
+
+                                        firstOpponentColor = JSON.parse(data["thirdPlayerColor"]);
+                                        firstOpponentBasePosition = +data["thirdPlayerBasePos"];
+                                        firstOpponentBasePositionX = +data["thirdPlayerBasePosX"];
+                                        firstOpponentBasePositionY = +JSON.parse(data["thirdPlayerBasePosY"]);
+                                        firstOpponentMines = JSON.parse(data["thirdPlayerMines"]);
+                                        firstOpponentSoldiers = JSON.parse(data["thirdPlayerSoldiers"]);
+                                        break;
+                                    case 4:
+                                        console.log(4);
+
+                                        firstOpponentColor = JSON.parse(data["fourthPlayerColor"]);
+                                        firstOpponentBasePosition = +data["fourthPlayerBasePos"];
+                                        firstOpponentBasePositionX = +data["fourthPlayerBasePosX"];
+                                        firstOpponentBasePositionY = +JSON.parse(data["fourthPlayerBasePosY"]);
+                                        firstOpponentMines = JSON.parse(data["fourthPlayerMines"]);
+                                        firstOpponentSoldiers = JSON.parse(data["fourthPlayerSoldiers"]);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 2:
+                                switch (main_counter) {
+                                    case 1:
+                                        secondOpponentColor = JSON.parse(data["firstPlayerColor"]);
+                                        secondOpponentBasePosition = +data["firstPlayerBasePos"];
+                                        secondOpponentBasePositionX = +data["firstPlayerBasePosX"];
+                                        secondOpponentBasePositionY = +data["firstPlayerBasePosY"];
+                                        secondOpponentSoldiers = JSON.parse(data["firstPlayerMines"]);
+                                        secondOpponentMines = JSON.parse(data["firstPlayerSoldiers"]);
+                                        break;
+                                    case 2:
+                                        secondOpponentColor = JSON.parse(data["secondPlayerColor"]);
+                                        secondOpponentBasePosition = +data["secondPlayerBasePos"];
+                                        secondOpponentBasePositionX = +data["secondPlayerBasePosX"];
+                                        secondOpponentBasePositionY = +data["secondPlayerBasePosY"];
+                                        secondOpponentSoldiers = JSON.parse(data["secondPlayerMines"]);
+                                        secondOpponentMines = JSON.parse(data["secondPlayerSoldiers"]);
+                                        break;
+                                    case 3:
+                                        secondOpponentColor = JSON.parse(data["thirdPlayerColor"]);
+                                        secondOpponentBasePosition = +data["thirdPlayerBasePos"];
+                                        secondOpponentBasePositionX = +data["thirdPlayerBasePosX"];
+                                        secondOpponentBasePositionY = +data["thirdPlayerBasePosY"];
+                                        secondOpponentSoldiers = JSON.parse(data["thirdPlayerMines"]);
+                                        secondOpponentMines = JSON.parse(data["thirdPlayerSoldiers"]);
+                                        break;
+                                    case 4:
+                                        secondOpponentColor = JSON.parse(data["fourthPlayerColor"]);
+                                        secondOpponentBasePosition = +data["fourthPlayerBasePos"];
+                                        secondOpponentBasePositionX = +data["fourthPlayerBasePosX"];
+                                        secondOpponentBasePositionY = +data["fourthPlayerBasePosY"];
+                                        secondOpponentSoldiers = JSON.parse(data["fourthPlayerMines"]);
+                                        secondOpponentMines = JSON.parse(data["fourthPlayerSoldiers"]);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case 3:
+                                switch (main_counter) {
+                                    case 1:
+                                        thirdOpponentColor = JSON.parse(data["firstPlayerColor"]);
+                                        thirdOpponentBasePosition = +data["firstPlayerBasePos"];
+                                        thirdOpponentBasePositionX = +data["firstPlayerBasePosX"];
+                                        thirdOpponentBasePositionY = +data["firstPlayerBasePosY"];
+                                        thirdOpponentSoldiers = JSON.parse(data["firstPlayerMines"]);
+                                        thirdOpponentMines = JSON.parse(data["firstPlayerSoldiers"]);
+                                        break;
+                                    case 2:
+                                        thirdOpponentColor = JSON.parse(data["secondPlayerColor"]);
+                                        thirdOpponentBasePosition = +data["secondPlayerBasePos"];
+                                        thirdOpponentBasePositionX = +data["secondPlayerBasePosX"];
+                                        thirdOpponentBasePositionY = +data["secondPlayerBasePosY"];
+                                        thirdOpponentSoldiers = JSON.parse(data["secondPlayerMines"]);
+                                        thirdOpponentMines = JSON.parse(data["secondPlayerSoldiers"]);
+                                        break;
+                                    case 3:
+                                        thirdOpponentColor = JSON.parse(data["thirdPlayerColor"]);
+                                        thirdOpponentBasePosition = +data["thirdPlayerBasePos"];
+                                        thirdOpponentBasePositionX = +data["thirdPlayerBasePosX"];
+                                        thirdOpponentBasePositionY = +data["thirdPlayerBasePosY"];
+                                        thirdOpponentSoldiers = JSON.parse(data["thirdPlayerMines"]);
+                                        thirdOpponentMines = JSON.parse(data["thirdPlayerSoldiers"]);
+                                        break;
+                                    case 4:
+                                        thirdOpponentColor = JSON.parse(data["fourthPlayerColor"]);
+                                        thirdOpponentBasePosition = +data["fourthPlayerBasePos"];
+                                        thirdOpponentBasePositionX = +data["fourthPlayerBasePosX"];
+                                        thirdOpponentBasePositionY = +data["fourthPlayerBasePosY"];
+                                        thirdOpponentSoldiers = JSON.parse(data["fourthPlayerMines"]);
+                                        thirdOpponentMines = JSON.parse(data["fourthPlayerSoldiers"]);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+                
+            }
+            loaded = true;
+        }
+
+	}
+
+	xhr.send(null);
+}
+
+const Send = () => {
+
 }
 
 Main();
