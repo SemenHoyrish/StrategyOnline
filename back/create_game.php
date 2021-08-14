@@ -1,10 +1,11 @@
 <?php
+    include_once "show_errors.php";
+    include_once "db.php";
+
+    check_is_user_logged_in();
+
     if (isset($_POST["done"]))
     {
-        include_once "show_errors.php";
-        include_once "db.php";
-
-        check_is_user_logged_in();
         $res = create_game(get_user_id($_COOKIE["u_n"]), create_settings(
             (int)$_POST["field_size"],
             (int)$_POST["money_start"],
